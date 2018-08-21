@@ -1,0 +1,71 @@
+function onOpen(){
+  SlidesApp.getUi()
+      .createMenu('Date button')
+      .addItem('Make date', 'createDate')
+      .addToUi();
+  update();
+}
+
+function update(){
+  var date = Utilities.formatDate(new Date(), "GMT+1", "dd/MM/yyyy");
+  var elements = SlidesApp.getActivePresentation().getSlides()[0].getPageElements();
+  for(var i=0;i<elements.length;i++){
+    if(elements[i].getObjectId()==("bobalicious")){
+      elements[i].asShape().getText().clear();
+      elements[i].asShape().getText().appendText(date);
+      return;
+    }
+  }
+}
+
+function createDate(){
+  var date = Utilities.formatDate(new Date(), "GMT+1", "dd/MM/yyyy");
+  var presentationId = SlidesApp.getActivePresentation().getId();
+  var elementId = "bobalicious";
+  var requests = [{
+    createShape: {
+      objectId: elementId,
+      shapeType: "TEXT_BOX",
+      elementProperties: {
+        pageObjectId: SlidesApp.getActivePresentation().getSlides()[0].getObjectId(),
+        size: {
+          height: {magnitude: 50,unit: 'PT'},
+          width: {magnitude: 200,unit: 'PT'}
+        },
+        transform: {
+          scaleX: 1,
+          scaleY: 1,
+          translateX: SlidesApp.getActivePresentation().getPageWidth()-233,
+          translateY: 33,
+          unit: 'PT'
+        }
+      }
+    }
+  },
+  {
+    insertText: {
+      objectId: elementId,
+      insertionIndex: 0,
+      text: date,
+    }
+  },
+  {
+    updateTextStyle: {
+      objectId: elementId,
+      textRange: {
+        type: 'ALL',
+      },
+      style: {
+        fontSize: {
+          magnitude: 36,
+          unit: 'PT'
+        },
+      },
+      fields: 'fontSize'
+    }
+  }
+  ];
+
+  // Execute the request.
+  Slides.Presentations.batchUpdate({requests: requests}, presentationId);
+}
